@@ -11,15 +11,25 @@ require("./config/database").connectDB();
 // Middleware to parse JSON request bodies
 app.use(express.json());
 
+// mount the routes
 app.use("/api/v1/bootcamps", bootcampRoutes);
 
+// default route
 app.get("/", (req, res) => {
   res.status(200).json({
-    success: true,
     message: "Welcome to the Express server!",
     data: {
       name: "Express Server",
     },
+  });
+});
+
+// Error handling middleware
+app.use((err, res) => {
+  console.error(err.stack);
+  res.status(err.statusCode || 500).json({
+    success: false,
+    message: err.message || "Internal Server Error",
   });
 });
 
