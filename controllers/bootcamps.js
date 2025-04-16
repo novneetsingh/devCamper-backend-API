@@ -21,7 +21,8 @@ exports.getBootcamps = async (req, res) => {
     .select(select || "")
     .sort(sort || "-createdAt")
     .skip(skip)
-    .limit(limit);
+    .limit(limit)
+    .populate("courses");
 
   res.status(200).json({
     success: true,
@@ -32,7 +33,7 @@ exports.getBootcamps = async (req, res) => {
 
 // get a single bootcamp by id
 exports.getBootcamp = async (req, res) => {
-  const bootcamp = await Bootcamp.findById(req.params.id);
+  const bootcamp = await Bootcamp.findById(req.params.id).populate("courses");
 
   if (!bootcamp) {
     throw new ErrorResponse("Bootcamp not found", 404);
@@ -63,11 +64,14 @@ exports.updateBootcamp = async (req, res) => {
 
 // delete a bootcamp
 exports.deleteBootcamp = async (req, res) => {
-  const bootcamp = await Bootcamp.findByIdAndDelete(req.params.id);
+  const bootcamp = await Bootcamp.findById(req.params.id);
 
   if (!bootcamp) {
     throw new ErrorResponse("Bootcamp not found", 404);
   }
+
+  // delete all courses associated with the bootcamp
+  await bootcamp.remove();
 
   res.status(200).json({
     success: true,

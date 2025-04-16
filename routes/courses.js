@@ -5,10 +5,16 @@ const {
   getAllCourses,
   getCourseById,
   getCoursesByBootcampId,
+  createCourse,
 } = require("../controllers/courses");
 
 router.get("/", getAllCourses);
+
 router.get("/:id", getCourseById);
-router.get("/bootcamp/:bootcampId", getCoursesByBootcampId);
+
+router
+  .route("/bootcamp/:bootcampId")
+  .get(getCoursesByBootcampId)
+  .post(createCourse);
 
 module.exports = router;
