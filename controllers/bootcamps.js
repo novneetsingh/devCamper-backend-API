@@ -1,6 +1,7 @@
 const Bootcamp = require("../models/Bootcamp");
 const ErrorResponse = require("../utils/errorResponse");
 const geocoder = require("../utils/geocoder");
+const { advancedQuery } = require("../utils/advancedQuery");
 
 // create a new bootcamp
 exports.createBootcamp = async (req, res) => {
@@ -14,7 +15,13 @@ exports.createBootcamp = async (req, res) => {
 
 // get all bootcamps
 exports.getBootcamps = async (req, res) => {
-  const bootcamps = await Bootcamp.find();
+  const { filter, select, sort, skip, limit } = advancedQuery(req.query);
+
+  const bootcamps = await Bootcamp.find(filter)
+    .select(select || "")
+    .sort(sort || "-createdAt")
+    .skip(skip)
+    .limit(limit);
 
   res.status(200).json({
     success: true,
@@ -94,4 +101,3 @@ exports.getBootcampsInRadius = async (req, res) => {
     data: bootcamps,
   });
 };
-
