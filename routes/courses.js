@@ -6,11 +6,13 @@ const {
   getCourseById,
   getCoursesByBootcampId,
   createCourse,
+  updateCourse,
+  deleteCourse,
 } = require("../controllers/courses");
 
 router.get("/", getAllCourses);
 
-router.get("/:id", getCourseById);
+router.route("/:id").get(getCourseById).put(updateCourse).delete(deleteCourse);
 
 router
   .route("/bootcamp/:bootcampId")

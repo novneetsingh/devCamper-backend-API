@@ -32,11 +32,11 @@ exports.getBootcamps = async (req, res) => {
 };
 
 // get a single bootcamp by id
-exports.getBootcamp = async (req, res) => {
+exports.getBootcamp = async (req, res, next) => {
   const bootcamp = await Bootcamp.findById(req.params.id).populate("courses");
 
   if (!bootcamp) {
-    throw new ErrorResponse("Bootcamp not found", 404);
+    return next(new ErrorResponse("Bootcamp not found", 404));
   }
 
   res.status(200).json({
@@ -46,14 +46,14 @@ exports.getBootcamp = async (req, res) => {
 };
 
 // update a bootcamp by id
-exports.updateBootcamp = async (req, res) => {
+exports.updateBootcamp = async (req, res, next) => {
   const bootcamp = await Bootcamp.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
     runValidators: true,
   });
 
   if (!bootcamp) {
-    throw new ErrorResponse("Bootcamp not found", 404);
+    return next(new ErrorResponse("Bootcamp not found", 404));
   }
 
   res.status(200).json({
@@ -63,11 +63,11 @@ exports.updateBootcamp = async (req, res) => {
 };
 
 // delete a bootcamp
-exports.deleteBootcamp = async (req, res) => {
+exports.deleteBootcamp = async (req, res, next) => {
   const bootcamp = await Bootcamp.findById(req.params.id);
 
   if (!bootcamp) {
-    throw new ErrorResponse("Bootcamp not found", 404);
+    return next(new ErrorResponse("Bootcamp not found", 404));
   }
 
   // delete all courses associated with the bootcamp
