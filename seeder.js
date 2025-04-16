@@ -1,8 +1,10 @@
 const fs = require("fs");
 const Bootcamp = require("./models/Bootcamp");
+const Course = require("./models/Course");
 
 // Read JSON files
 const bootcamps = JSON.parse(fs.readFileSync(`./data/bootcamps.json`, "utf-8"));
+const courses = JSON.parse(fs.readFileSync(`./data/courses.json`, "utf-8"));
 
 require("dotenv").config(); // load environment variables
 
@@ -10,10 +12,11 @@ require("dotenv").config(); // load environment variables
 require("./config/database").connectDB();
 
 // create bootcamps
-const createBootcamps = async () => {
+const createData = async () => {
   try {
     await Bootcamp.create(bootcamps);
-    console.log("Bootcamps created");
+    await Course.create(courses);
+    console.log("Bootcamps and Courses created");
     process.exit(0);
   } catch (error) {
     console.log(error);
@@ -21,10 +24,11 @@ const createBootcamps = async () => {
 };
 
 // delete all bootcamps
-const deleteBootcamps = async () => {
+const deleteData = async () => {
   try {
     await Bootcamp.deleteMany();
-    console.log("Bootcamps deleted");
+    await Course.deleteMany();
+    console.log("Bootcamps and Courses deleted");
     process.exit(0);
   } catch (error) {
     console.log(error);
@@ -32,7 +36,7 @@ const deleteBootcamps = async () => {
 };
 
 if (process.argv[2] === "-create") {
-  createBootcamps();
+  createData();
 } else if (process.argv[2] === "-delete") {
-  deleteBootcamps();
+  deleteData();
 }
