@@ -1,19 +1,12 @@
 const User = require("../models/User");
 const ErrorResponse = require("../utils/errorResponse");
-const crypto = require("crypto");
-const jwt = require("jsonwebtoken");
 
 // register a user
 exports.register = async (req, res, next) => {
   // create user
   const user = await User.create(req.body);
 
-  const token = user.getSignedJwtToken();
-
-  res.status(201).json({
-    success: true,
-    token,
-  });
+  createTokenAndSetCookie(user, res);
 };
 
 // login a user
@@ -39,8 +32,25 @@ exports.login = async (req, res, next) => {
     return next(new ErrorResponse("Invalid credentials: Wrong password", 401));
   }
 
-  const token = user.getSignedJwtToken();
-
-  res.status(200).json({ success: true, token });
+  createTokenAndSetCookie(user, res);
 };
 
+// Get token from model, create cookie and send response
+const createTokenAndSetCookie = (user, res) => {
+  // Create token
+  const token = user.getSignedJwtToken();
+
+  // Set options for cookie
+  const options = {
+    maxAge: 60 * 60 * 1000, // 1 hour
+    httpOnly: true, // prevents client-side JS from accessing the cookie (protection against XSS)
+    secure: process.env.NODE_ENV === "production", // uses HTTPS only in production
+    sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax", // cross-site cookie settings
+    path: "/", // cookie accessible on all routes
+  };
+
+  res.status(200).cookie("token", token, options).json({
+    success: true,
+    token,
+  });
+};

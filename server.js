@@ -1,6 +1,6 @@
 const express = require("express");
-const path = require("path");
 const app = express();
+const cookieParser = require("cookie-parser");
 const fileupload = require("express-fileupload");
 require("dotenv").config();
 
@@ -15,6 +15,9 @@ require("./config/database").connectDB();
 
 // Middleware to parse JSON request bodies
 app.use(express.json());
+
+// Middleware to parse cookies
+app.use(cookieParser());
 
 // Middleware to parse file upload and limits the size of the file
 app.use(fileupload());
