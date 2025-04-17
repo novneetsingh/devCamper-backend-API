@@ -8,6 +8,7 @@ require("dotenv").config();
 const bootcampRoutes = require("./routes/bootcamps");
 const courseRoutes = require("./routes/courses");
 const userRoutes = require("./routes/users");
+const authRoutes = require("./routes/auth");
 
 // connect to the database
 require("./config/database").connectDB();
@@ -22,6 +23,7 @@ app.use(fileupload());
 app.use("/api/v1/bootcamps", bootcampRoutes);
 app.use("/api/v1/courses", courseRoutes);
 app.use("/api/v1/users", userRoutes);
+app.use("/api/v1/auth", authRoutes);
 
 // default route
 app.get("/", (req, res) => {
