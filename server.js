@@ -1,5 +1,7 @@
 const express = require("express");
+const path = require("path");
 const app = express();
+const fileupload = require("express-fileupload");
 require("dotenv").config();
 
 // import routes
@@ -12,6 +14,9 @@ require("./config/database").connectDB();
 
 // Middleware to parse JSON request bodies
 app.use(express.json());
+
+// Middleware to parse file upload and limits the size of the file
+app.use(fileupload());
 
 // mount the routes
 app.use("/api/v1/bootcamps", bootcampRoutes);
