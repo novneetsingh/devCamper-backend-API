@@ -15,7 +15,7 @@ require("./config/database").connectDB();
 const createData = async () => {
   try {
     await Bootcamp.create(bootcamps);
-    await Course.create(courses);
+    // await Course.create(courses);
     console.log("Bootcamps and Courses created");
     process.exit(0);
   } catch (error) {

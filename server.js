@@ -5,6 +5,7 @@ require("dotenv").config();
 // import routes
 const bootcampRoutes = require("./routes/bootcamps");
 const courseRoutes = require("./routes/courses");
+const userRoutes = require("./routes/users");
 
 // connect to the database
 require("./config/database").connectDB();
@@ -15,6 +16,7 @@ app.use(express.json());
 // mount the routes
 app.use("/api/v1/bootcamps", bootcampRoutes);
 app.use("/api/v1/courses", courseRoutes);
+app.use("/api/v1/users", userRoutes);
 
 // default route
 app.get("/", (req, res) => {

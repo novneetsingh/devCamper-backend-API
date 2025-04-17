@@ -17,7 +17,7 @@ exports.getAllCourses = async (req, res) => {
 };
 
 // get all courses by bootcamp id
-exports.getCoursesByBootcampId = async (req, res, next) => {
+exports.getCoursesByBootcampId = async (req, res) => {
   const courses = await Course.find({
     bootcamp: req.params.bootcampId,
   }).populate({
@@ -26,11 +26,9 @@ exports.getCoursesByBootcampId = async (req, res, next) => {
   });
 
   if (!courses) {
-    return next(
-      new ErrorResponse(
-        `No courses found with the bootcamp id of ${req.params.bootcampId}`,
-        404
-      )
+    throw new ErrorResponse(
+      `No courses found with the bootcamp id of ${req.params.bootcampId}`,
+      404
     );
   }
 
@@ -42,15 +40,16 @@ exports.getCoursesByBootcampId = async (req, res, next) => {
 };
 
 // get a single course by id
-exports.getCourseById = async (req, res, next) => {
+exports.getCourseById = async (req, res) => {
   const course = await Course.findById(req.params.id).populate({
     path: "bootcamp",
     select: "name description",
   });
 
   if (!course) {
-    return next(
-      new ErrorResponse(`No course found with the id of ${req.params.id}`, 404)
+    throw new ErrorResponse(
+      `No course found with the id of ${req.params.id}`,
+      404
     );
   }
 
@@ -61,17 +60,15 @@ exports.getCourseById = async (req, res, next) => {
 };
 
 // create a course by bootcamp id
-exports.createCourse = async (req, res, next) => {
+exports.createCourse = async (req, res) => {
   req.body.bootcamp = req.params.bootcampId;
 
   const bootcamp = await Bootcamp.findById(req.params.bootcampId);
 
   if (!bootcamp) {
-    return next(
-      new ErrorResponse(
-        `No bootcamp found with the id of ${req.params.bootcampId}`,
-        404
-      )
+    throw new ErrorResponse(
+      `No bootcamp found with the id of ${req.params.bootcampId}`,
+      404
     );
   }
 
@@ -84,15 +81,16 @@ exports.createCourse = async (req, res, next) => {
 };
 
 // update a course by id
-exports.updateCourse = async (req, res, next) => {
+exports.updateCourse = async (req, res) => {
   const course = await Course.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
     runValidators: true,
   });
 
   if (!course) {
-    return next(
-      new ErrorResponse(`No course found with the id of ${req.params.id}`, 404)
+    throw new ErrorResponse(
+      `No course found with the id of ${req.params.id}`,
+      404
     );
   }
 
@@ -103,14 +101,17 @@ exports.updateCourse = async (req, res, next) => {
 };
 
 // delete a course by id
-exports.deleteCourse = async (req, res, next) => {
-  const course = await Course.findByIdAndDelete(req.params.id);
+exports.deleteCourse = async (req, res) => {
+  const course = await Course.findById(req.params.id);
 
   if (!course) {
-    return next(
-      new ErrorResponse(`No course found with the id of ${req.params.id}`, 404)
+    throw new ErrorResponse(
+      `No course found with the id of ${req.params.id}`,
+      404
     );
   }
+
+  await course.remove();
 
   res.status(200).json({
     success: true,
