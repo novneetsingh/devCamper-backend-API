@@ -1,13 +1,21 @@
 const Course = require("../models/Course");
 const Bootcamp = require("../models/Bootcamp");
 const ErrorResponse = require("../utils/errorResponse");
+const { advancedQuery } = require("../utils/advancedQuery");
 
 // get all courses
 exports.getAllCourses = async (req, res) => {
-  const courses = await Course.find().populate({
-    path: "bootcamp",
-    select: "name description",
-  });
+  const { filter, select, sort, skip, limit } = advancedQuery(req.query);
+
+  const courses = await Course.find(filter)
+    .select(select || "")
+    .sort(sort || "-createdAt")
+    .skip(skip)
+    .limit(limit)
+    .populate({
+      path: "bootcamp",
+      select: "name description",
+    });
 
   res.status(200).json({
     success: true,
