@@ -70,6 +70,7 @@ exports.getCourseById = async (req, res) => {
 // create a course by bootcamp id
 exports.createCourse = async (req, res) => {
   req.body.bootcamp = req.params.bootcampId;
+  req.body.user = req.user.id;
 
   const bootcamp = await Bootcamp.findById(req.params.bootcampId);
 
@@ -77,6 +78,14 @@ exports.createCourse = async (req, res) => {
     throw new ErrorResponse(
       `No bootcamp found with the id of ${req.params.bootcampId}`,
       404
+    );
+  }
+
+  // check if user is bootcamp owner
+  if (bootcamp.user.toString() !== req.user.id && req.user.role !== "admin") {
+    throw new ErrorResponse(
+      "You are not authorized to add a course to this bootcamp",
+      403
     );
   }
 
@@ -90,12 +99,26 @@ exports.createCourse = async (req, res) => {
 
 // update a course by id
 exports.updateCourse = async (req, res) => {
-  const course = await Course.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-    runValidators: true,
-  });
+  const course = await Course.findById(req.params.id);
 
-  if (!course) {
+  // check if user is course owner
+  if (course.user.toString() !== req.user.id && req.user.role !== "admin") {
+    throw new ErrorResponse(
+      "You are not authorized to update this course",
+      403
+    );
+  }
+
+  const updatedCourse = await Course.findByIdAndUpdate(
+    req.params.id,
+    req.body,
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
+
+  if (!updatedCourse) {
     throw new ErrorResponse(
       `No course found with the id of ${req.params.id}`,
       404
@@ -104,7 +127,7 @@ exports.updateCourse = async (req, res) => {
 
   res.status(200).json({
     success: true,
-    data: course,
+    data: updatedCourse,
   });
 };
 
@@ -116,6 +139,14 @@ exports.deleteCourse = async (req, res) => {
     throw new ErrorResponse(
       `No course found with the id of ${req.params.id}`,
       404
+    );
+  }
+
+  // check if user is course owner
+  if (course.user.toString() !== req.user.id && req.user.role !== "admin") {
+    throw new ErrorResponse(
+      "You are not authorized to delete this course",
+      403
     );
   }
 
