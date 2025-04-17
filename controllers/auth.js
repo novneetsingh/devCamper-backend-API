@@ -6,6 +6,8 @@ exports.register = async (req, res, next) => {
   // create user
   const user = await User.create(req.body);
 
+  console.log(user);
+
   createTokenAndSetCookie(user, res);
 };
 
@@ -52,5 +54,21 @@ const createTokenAndSetCookie = (user, res) => {
   res.status(200).cookie("token", token, options).json({
     success: true,
     token,
+  });
+};
+
+// logout a user
+exports.logout = async (req, res) => {
+  // Clear the token cookie properly
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production", // Must match cookie settings
+    sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax", // cross-site cookie settings
+    path: "/", // Ensures cookie is removed from all routes
+  });
+
+  return res.status(200).json({
+    success: true,
+    message: "User Logged Out Successfully",
   });
 };

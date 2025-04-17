@@ -8,6 +8,8 @@ const {
   deleteUser,
 } = require("../controllers/users");
 
+const { auth } = require("../middlewares/auth");
+
 router.route("/").get(getAllUsers).post(createUser);
 
 router.route("/:id").get(getUser).put(updateUser).delete(deleteUser);
