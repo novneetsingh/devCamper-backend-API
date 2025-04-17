@@ -11,17 +11,17 @@ const {
   uploadBootcampPhoto,
 } = require("../controllers/bootcamps");
 
-const { auth } = require("../middlewares/auth");
+const { auth, isAuthorized } = require("../middlewares/auth");
 
-router.route("/").get(getBootcamps).post(auth, createBootcamp);
+router.route("/").get(getBootcamps).post(auth, isAuthorized, createBootcamp);
 
 router
   .route("/:id")
   .get(getBootcamp)
-  .put(auth, updateBootcamp)
-  .delete(auth, deleteBootcamp);
+  .put(auth, isAuthorized, updateBootcamp)
+  .delete(auth, isAuthorized, deleteBootcamp);
 
-router.put("/:id/photo", auth, uploadBootcampPhoto);
+router.put("/:id/photo", auth, isAuthorized, uploadBootcampPhoto);
 
 router.get("/radius/:zipcode/:distance", getBootcampsInRadius);
 

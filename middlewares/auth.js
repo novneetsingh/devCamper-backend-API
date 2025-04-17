@@ -22,3 +22,14 @@ exports.auth = (req, res, next) => {
   req.user = decoded;
   next();
 };
+
+// Authorization middleware to check if user is admin or publisher
+exports.isAuthorized = (req, res, next) => {
+  if (req.user.role !== "admin" && req.user.role !== "publisher") {
+    throw new ErrorResponse(
+      "You are not authorized to access this resource",
+      403
+    );
+  }
+  next();
+};

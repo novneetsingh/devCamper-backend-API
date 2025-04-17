@@ -10,19 +10,19 @@ const {
   deleteCourse,
 } = require("../controllers/courses");
 
-const { auth } = require("../middlewares/auth");
+const { auth, isAuthorized } = require("../middlewares/auth");
 
 router.get("/", getAllCourses);
 
 router
   .route("/:id")
   .get(getCourseById)
-  .put(auth, updateCourse)
-  .delete(auth, deleteCourse);
+  .put(auth, isAuthorized, updateCourse)
+  .delete(auth, isAuthorized, deleteCourse);
 
 router
   .route("/bootcamp/:bootcampId")
   .get(getCoursesByBootcampId)
-  .post(auth, createCourse);
+  .post(auth, isAuthorized, createCourse);
 
 module.exports = router;
