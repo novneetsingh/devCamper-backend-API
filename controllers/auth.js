@@ -1,5 +1,6 @@
 const User = require("../models/User");
 const ErrorResponse = require("../utils/errorResponse");
+const mailSender = require("../services/mailSender");
 
 // register a user
 exports.register = async (req, res, next) => {
@@ -63,7 +64,26 @@ exports.getMe = async (req, res) => {
   });
 };
 
+// forgot password
+exports.forgotPassword = async (req, res) => {
+  const user = await User.findOne({ email: req.body.email });
 
+  if (!user) {
+    throw new ErrorResponse("User not found with this email", 404);
+  }
+
+  // get reset token
+  const resetToken = user.getResetPasswordToken();
+
+  await user.save({
+    validateBeforeSave: false,
+  });
+
+  res.status(200).json({
+    success: true,
+    data: user,
+  });
+};
 
 // Get token from model, create cookie and send response
 const createTokenAndSetCookie = (user, res) => {
