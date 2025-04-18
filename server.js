@@ -3,6 +3,8 @@ const app = express();
 const cookieParser = require("cookie-parser");
 const fileupload = require("express-fileupload");
 const mongoSanitize = require("express-mongo-sanitize");
+const helmet = require("helmet");
+const xss = require("xss");
 
 require("dotenv").config(); // load the environment variables
 
@@ -27,6 +29,26 @@ app.use(fileupload());
 
 // Middleware to sanitize the data
 app.use(mongoSanitize());
+
+// Middleware to sanitize the data from xss attacks
+app.use((req, res, next) => {
+  if (req.body) {
+    for (const key in req.body) {
+      req.body[key] = xss(req.body[key]); // Sanitizing each body field
+    }
+  }
+
+  if (req.query) {
+    for (const key in req.query) {
+      req.query[key] = xss(req.query[key]); // Sanitizing each query param
+    }
+  }
+
+  next(); // Proceed to the next middleware/route handler
+});
+
+// Middleware to secure the headers
+app.use(helmet());
 
 // mount the routes
 app.use("/api/v1/bootcamps", bootcampRoutes);
