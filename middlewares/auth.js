@@ -44,3 +44,14 @@ exports.isAdmin = (req, res, next) => {
   }
   next();
 };
+
+// Authorization middleware to check if user role is user or admin
+exports.isUserOrAdmin = (req, res, next) => {
+  if (req.user.role !== "user" && req.user.role !== "admin") {
+    throw new ErrorResponse(
+      "You are not authorized to access this resource",
+      403
+    );
+  }
+  next();
+};

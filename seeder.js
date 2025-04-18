@@ -2,11 +2,13 @@ const fs = require("fs");
 const Bootcamp = require("./models/Bootcamp");
 const Course = require("./models/Course");
 const User = require("./models/User");
+const Review = require("./models/Review");
 
 // Read JSON files
 const bootcamps = JSON.parse(fs.readFileSync(`./data/bootcamps.json`, "utf-8"));
 const courses = JSON.parse(fs.readFileSync(`./data/courses.json`, "utf-8"));
 const users = JSON.parse(fs.readFileSync(`./data/users.json`, "utf-8"));
+const reviews = JSON.parse(fs.readFileSync(`./data/reviews.json`, "utf-8"));
 
 require("dotenv").config(); // load environment variables
 
@@ -19,6 +21,7 @@ const createData = async () => {
     await Bootcamp.create(bootcamps);
     await Course.create(courses);
     await User.create(users);
+    await Review.create(reviews);
 
     console.log("Bootcamps, Courses and Users created");
     process.exit(0);
@@ -33,6 +36,7 @@ const deleteData = async () => {
     await Bootcamp.deleteMany();
     await Course.deleteMany();
     await User.deleteMany();
+    await Review.deleteMany();
 
     console.log("Bootcamps, Courses and Users deleted");
     process.exit(0);

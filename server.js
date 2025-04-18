@@ -9,6 +9,7 @@ const bootcampRoutes = require("./routes/bootcamps");
 const courseRoutes = require("./routes/courses");
 const userRoutes = require("./routes/users");
 const authRoutes = require("./routes/auth");
+const reviewRoutes = require("./routes/reviews");
 
 // connect to the database
 require("./config/database").connectDB();
@@ -27,6 +28,7 @@ app.use("/api/v1/bootcamps", bootcampRoutes);
 app.use("/api/v1/courses", courseRoutes);
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1/reviews", reviewRoutes);
 
 // default route
 app.get("/", (req, res) => {
