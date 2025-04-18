@@ -140,6 +140,53 @@ exports.resetPassword = async (req, res) => {
   });
 };
 
+// update user details
+exports.updateDetails = async (req, res) => {
+  const fieldsToUpdate = {
+    name: req.body.name,
+    email: req.body.email,
+  };
+
+  const user = await User.findByIdAndUpdate(req.user.id, fieldsToUpdate, {
+    new: true,
+    runValidators: true,
+  });
+
+  if (!user) {
+    throw new ErrorResponse("User not found", 404);
+  }
+
+  res.status(200).json({
+    success: true,
+    data: user,
+  });
+};
+
+// update password
+exports.updatePassword = async (req, res) => {
+  const user = await User.findById(req.user.id).select("+password");
+
+  if (!user) {
+    throw new ErrorResponse("User not found", 404);
+  }
+
+  // check if old password is correct
+  const isMatch = await user.comparePassword(req.body.oldPassword);
+
+  if (!isMatch) {
+    throw new ErrorResponse("Invalid old password", 401);
+  }
+
+  user.password = req.body.newPassword;
+
+  await user.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Password updated successfully",
+  });
+};
+
 // Get token from model, create cookie and send response
 const createTokenAndSetCookie = (user, res) => {
   // Create token
