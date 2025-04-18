@@ -5,6 +5,9 @@ const fileupload = require("express-fileupload");
 const mongoSanitize = require("express-mongo-sanitize");
 const helmet = require("helmet");
 const xss = require("xss");
+const rateLimit = require("express-rate-limit");
+const hpp = require("hpp");
+const cors = require("cors");
 
 require("dotenv").config(); // load the environment variables
 
@@ -18,6 +21,9 @@ const reviewRoutes = require("./routes/reviews");
 // connect to the database
 require("./config/database").connectDB();
 
+// enable cors
+app.use(cors());
+
 // Middleware to parse JSON request bodies
 app.use(express.json());
 
@@ -27,10 +33,19 @@ app.use(cookieParser());
 // Middleware to parse file upload and limits the size of the file
 app.use(fileupload());
 
-// Middleware to sanitize the data
-app.use(mongoSanitize());
+// Middleware to secure the headers
+app.use(helmet());
 
-// Middleware to sanitize the data from xss attacks
+// Middleware to prevent parameter pollution
+app.use(hpp());
+
+// Middleware to sanitize the data
+app.use((req, res, next) => {
+  req.body = mongoSanitize.sanitize(req.body); // Sanitize only req.body
+  next();
+});
+
+// // Middleware to sanitize the data from xss attacks
 app.use((req, res, next) => {
   if (req.body) {
     for (const key in req.body) {
@@ -47,8 +62,13 @@ app.use((req, res, next) => {
   next(); // Proceed to the next middleware/route handler
 });
 
-// Middleware to secure the headers
-app.use(helmet());
+// Middleware to limit the number of requests
+app.use(
+  rateLimit({
+    windowMs: 10 * 60 * 1000, // 10 minutes
+    max: 100, // limit each IP to 100 requests per windowMs
+  })
+);
 
 // mount the routes
 app.use("/api/v1/bootcamps", bootcampRoutes);
