@@ -64,6 +64,23 @@ exports.updateReview = async (req, res) => {
   if (!review) {
     throw new ErrorResponse("Review not found", 404);
   }
+
+  // check if the user is the owner of the review or admin
+  if (review.user.toString() !== req.user.id && req.user.role !== "admin") {
+    throw new ErrorResponse("Not authorized to update this review", 403);
+  }
+
+  // Update fields manually
+  review.title = req.body.title || review.title;
+  review.text = req.body.text || review.text;
+  review.rating = req.body.rating || review.rating;
+
+  await review.save(); // triggers post('save') hook
+
+  res.status(200).json({
+    success: true,
+    data: review,
+  });
 };
 
 // delete a review
@@ -74,10 +91,15 @@ exports.deleteReview = async (req, res) => {
     throw new ErrorResponse("Review not found", 404);
   }
 
+  // check if the user is the owner of the review or admin
+  if (review.user.toString() !== req.user.id && req.user.role !== "admin") {
+    throw new ErrorResponse("Not authorized to delete this review", 403);
+  }
+
   await review.remove();
 
   res.status(200).json({
     success: true,
-    data: {},
+    message: "Review deleted successfully",
   });
 };
