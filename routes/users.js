@@ -8,10 +8,17 @@ const {
   deleteUser,
 } = require("../controllers/users");
 
-const { auth } = require("../middlewares/auth");
+const { auth, isAdmin } = require("../middlewares/auth");
 
-router.route("/").get(getAllUsers).post(createUser);
+router
+  .route("/")
+  .get(auth, isAdmin, getAllUsers)
+  .post(auth, isAdmin, createUser);
 
-router.route("/:id").get(getUser).put(updateUser).delete(deleteUser);
+router
+  .route("/:id")
+  .get(auth, isAdmin, getUser)
+  .put(auth, isAdmin, updateUser)
+  .delete(auth, isAdmin, deleteUser);
 
 module.exports = router;

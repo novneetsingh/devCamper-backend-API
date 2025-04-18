@@ -33,3 +33,14 @@ exports.isAuthorized = (req, res, next) => {
   }
   next();
 };
+
+// Authorization middleware to check if user is admin only
+exports.isAdmin = (req, res, next) => {
+  if (req.user.role !== "admin") {
+    throw new ErrorResponse(
+      "You are not authorized to access this resource",
+      403
+    );
+  }
+  next();
+};
