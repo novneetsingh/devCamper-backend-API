@@ -1,9 +1,10 @@
 const User = require("../models/User");
 const ErrorResponse = require("../utils/errorResponse");
-const mailSender = require("../services/mailSender");
+const { mailSender } = require("../services/mailSender");
+const crypto = require("crypto");
 
 // register a user
-exports.register = async (req, res, next) => {
+exports.register = async (req, res) => {
   // create user
   const user = await User.create(req.body);
 
@@ -79,9 +80,63 @@ exports.forgotPassword = async (req, res) => {
     validateBeforeSave: false,
   });
 
+  //create reset url
+  const resetUrl = `${req.protocol}://${req.get(
+    "host"
+  )}/api/v1/auth/resetpassword/${resetToken}`;
+
+  const message = `You are receiving this email because you (or someone else) has requested the reset of a password. Please make a PUT request to: \n\n ${resetUrl}.\n\n If you did not request this, please ignore this email and your password will remain unchanged.`;
+
+  try {
+    await mailSender({
+      email: user.email,
+      subject: "Password Reset Request",
+      body: message,
+    });
+  } catch (error) {
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+    await user.save({
+      validateBeforeSave: false,
+    });
+
+    throw new ErrorResponse("Email could not be sent", 500);
+  }
+
   res.status(200).json({
     success: true,
-    data: user,
+    message: "Email sent successfully",
+  });
+};
+
+// reset password
+exports.resetPassword = async (req, res) => {
+  // hash token
+  const resetPasswordToken = crypto
+    .createHash("sha256")
+    .update(req.params.resetToken)
+    .digest("hex");
+
+  // find user with token and check if it has not expired
+  const user = await User.findOne({
+    resetPasswordToken,
+    resetPasswordExpire: { $gt: Date.now() },
+  });
+
+  if (!user) {
+    throw new ErrorResponse("Invalid reset token", 400);
+  }
+
+  // update password and reset token and expire
+  user.password = req.body.password;
+  user.resetPasswordToken = undefined;
+  user.resetPasswordExpire = undefined;
+
+  await user.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Password reset successful",
   });
 };
 
