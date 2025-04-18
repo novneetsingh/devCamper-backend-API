@@ -2,7 +2,9 @@ const express = require("express");
 const app = express();
 const cookieParser = require("cookie-parser");
 const fileupload = require("express-fileupload");
-require("dotenv").config();
+const mongoSanitize = require("express-mongo-sanitize");
+
+require("dotenv").config(); // load the environment variables
 
 // import routes
 const bootcampRoutes = require("./routes/bootcamps");
@@ -22,6 +24,9 @@ app.use(cookieParser());
 
 // Middleware to parse file upload and limits the size of the file
 app.use(fileupload());
+
+// Middleware to sanitize the data
+app.use(mongoSanitize());
 
 // mount the routes
 app.use("/api/v1/bootcamps", bootcampRoutes);
